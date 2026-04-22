@@ -19,7 +19,8 @@ async function createOrder(req, res) {
 
     const amount = calculateAmount(printJob.pages, printJob.copies);
     const orderId = `test_order_${printJob._id}`;
-    const qrPayload = `upi://pay?pa=testshop@upi&pn=PrintShop&am=${(amount / 100).toStringAsFixed(2)}&cu=INR&tn=PrintJob-${printJob._id}`;
+    const qrAmount = (amount / 100).toFixed(2);
+    const qrPayload = `upi://pay?pa=testshop@upi&pn=PrintShop&am=${qrAmount}&cu=INR&tn=PrintJob-${printJob._id}`;
 
     printJob.amount = amount;
     printJob.currency = "INR";
