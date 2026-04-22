@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
+const mongoose = require("mongoose");
 
 const authRoutes = require("./routes/authRoutes");
 const printJobRoutes = require("./routes/printJobRoutes");
@@ -19,7 +20,11 @@ app.use("/uploads", express.static(uploadsDir));
 app.use(express.json());
 
 app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok" });
+  const dbConnected = mongoose.connection.readyState === 1;
+  res.status(dbConnected ? 200 : 503).json({
+    status: dbConnected ? "ok" : "degraded",
+    dbConnected,
+  });
 });
 
 app.use("/api/auth", authRoutes);
