@@ -47,18 +47,6 @@ const printJobSchema = new mongoose.Schema(
       enum: ["pending", "paid", "failed"],
       default: "pending",
     },
-    razorpayOrderId: {
-      type: String,
-      default: null,
-    },
-    razorpayPaymentId: {
-      type: String,
-      default: null,
-    },
-    razorpaySignature: {
-      type: String,
-      default: null,
-    },
   },
   { timestamps: true }
 );

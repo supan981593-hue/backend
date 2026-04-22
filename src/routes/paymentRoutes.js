@@ -2,12 +2,12 @@ const express = require("express");
 
 const {
   createOrder,
-  verifyPayment,
+  confirmMockPayment,
 } = require("../controllers/paymentController");
 
 const router = express.Router();
 
 router.post("/create-order", createOrder);
-router.post("/verify", verifyPayment);
+router.post("/confirm-mock", confirmMockPayment);
 
 module.exports = router;
