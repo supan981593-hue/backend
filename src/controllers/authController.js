@@ -2,13 +2,13 @@ async function login(req, res) {
   const { email, password } = req.body;
 
   // Temporary login (hardcoded)
-  if (email === "admin" && password === "1234") {
+  if (email === "admin@gmail.com" && password === "1234") {
     return res.json({
       token: "dummy-token",
       user: {
         id: "1",
         name: "Admin",
-        email: "admin",
+        email: "admin@gmail.com",
         role: "admin",
       },
     });
