@@ -1,17 +1,19 @@
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-const path = require("path");
 
 const authRoutes = require("./routes/authRoutes");
 const printJobRoutes = require("./routes/printJobRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
+const { ensureUploadsDir, uploadsDir } = require("./config/paths");
 
 const app = express();
 
+ensureUploadsDir();
+
 app.use(cors());
 app.use(morgan("dev"));
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use("/uploads", express.static(uploadsDir));
 
 // JSON body parsing is enabled for normal REST endpoints.
 app.use(express.json());

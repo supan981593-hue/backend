@@ -1,9 +1,10 @@
-const path = require("path");
 const multer = require("multer");
+const { ensureUploadsDir, uploadsDir } = require("../config/paths");
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
-    cb(null, path.join(process.cwd(), "uploads"));
+    ensureUploadsDir();
+    cb(null, uploadsDir);
   },
   filename: (_req, file, cb) => {
     const uniqueName = `${Date.now()}-${file.originalname.replace(/\s+/g, "-")}`;
