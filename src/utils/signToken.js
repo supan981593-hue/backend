@@ -1,6 +1,10 @@
 const jwt = require("jsonwebtoken");
 
 function signToken(user) {
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET is required");
+  }
+
   return jwt.sign(
     {
       sub: user._id.toString(),
@@ -8,7 +12,7 @@ function signToken(user) {
       role: user.role,
     },
     process.env.JWT_SECRET,
-    { expiresIn: "1d" }
+    { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
   );
 }
 

@@ -14,6 +14,15 @@ async function seedShopkeeper() {
   const existingUser = await User.findOne({ email: email.toLowerCase() });
 
   if (existingUser) {
+    const passwordMatches = await bcrypt.compare(password, existingUser.passwordHash);
+
+    if (!passwordMatches) {
+      existingUser.passwordHash = await bcrypt.hash(password, 10);
+      existingUser.name = name;
+      await existingUser.save();
+      console.log("Default shopkeeper password updated from environment");
+    }
+
     return;
   }
 

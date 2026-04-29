@@ -12,7 +12,34 @@ const app = express();
 
 ensureUploadsDir();
 
-app.use(cors());
+const allowedOrigins = (process.env.CORS_ORIGINS || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const defaultAllowedOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "https://tiny-pond-4371.supan981593.workers.dev",
+];
+
+const corsOptions = {
+  origin(origin, callback) {
+    const origins = allowedOrigins.length ? allowedOrigins : defaultAllowedOrigins;
+
+    if (!origin || origins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`Origin ${origin} is not allowed by CORS`));
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  maxAge: 86400,
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(morgan("dev"));
 app.use("/uploads", express.static(uploadsDir));
 

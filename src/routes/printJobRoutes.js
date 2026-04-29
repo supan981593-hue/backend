@@ -5,13 +5,12 @@ const {
   getPrintJobs,
   getPrintJobById,
 } = require("../controllers/printJobController");
-const requireAuth = require("../middleware/authMiddleware");
 const upload = require("../middleware/uploadMiddleware");
 
 const router = express.Router();
 
 router.post("/upload", upload.single("file"), uploadPrintJob);
-router.get("/", requireAuth, getPrintJobs);
-router.get("/:id", requireAuth, getPrintJobById);
+router.get("/", getPrintJobs);
+router.get("/:id", getPrintJobById);
 
 module.exports = router;
