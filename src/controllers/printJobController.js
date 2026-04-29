@@ -3,6 +3,34 @@ const path = require("path");
 const PrintJob = require("../models/PrintJob");
 const isDbReady = require("../utils/isDbReady");
 
+function getPublicBaseUrl(req) {
+  if (process.env.BASE_URL) {
+    return process.env.BASE_URL.replace(/\/$/, "");
+  }
+
+  const protocol = req.get("x-forwarded-proto") || req.protocol || "http";
+  return `${protocol}://${req.get("host")}`;
+}
+
+function normalizePrintJob(printJob, req) {
+  const normalizedJob = typeof printJob.toObject === "function" ? printJob.toObject() : printJob;
+  const baseUrl = getPublicBaseUrl(req);
+
+  if (normalizedJob.fileUrl) {
+    try {
+      const fileUrl = new URL(normalizedJob.fileUrl);
+      normalizedJob.fileUrl = `${baseUrl}${fileUrl.pathname}`;
+    } catch (_error) {
+      const fileName = path.basename(normalizedJob.fileUrl);
+      normalizedJob.fileUrl = `${baseUrl}/uploads/${fileName}`;
+    }
+  } else if (normalizedJob.fileStoragePath) {
+    normalizedJob.fileUrl = `${baseUrl}/${normalizedJob.fileStoragePath.replace(/\\/g, "/")}`;
+  }
+
+  return normalizedJob;
+}
+
 async function uploadPrintJob(req, res) {
   try {
     const { customerName, pages, copies, notes } = req.body;
@@ -17,7 +45,7 @@ async function uploadPrintJob(req, res) {
       return res.status(400).json({ message: "File is required" });
     }
 
-    const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
+    const baseUrl = getPublicBaseUrl(req);
     const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
 
     const printJob = await PrintJob.create({
@@ -30,7 +58,7 @@ async function uploadPrintJob(req, res) {
       fileStoragePath: path.join("uploads", req.file.filename),
     });
 
-    res.status(201).json(printJob);
+    res.status(201).json(normalizePrintJob(printJob, req));
   } catch (error) {
     console.error("Failed to upload print job", error);
     res.status(500).json({ message: "Failed to upload print job" });
@@ -67,7 +95,7 @@ async function getPrintJobs(req, res) {
     }
 
     const printJobs = await PrintJob.find(query).sort({ createdAt: -1 });
-    res.json(printJobs);
+    res.json(printJobs.map((printJob) => normalizePrintJob(printJob, req)));
   } catch (error) {
     console.error("Failed to load print jobs", error);
     res.status(500).json({ message: "Failed to load print jobs" });
@@ -88,7 +116,7 @@ async function getPrintJobById(req, res) {
       return res.status(404).json({ message: "Print job not found" });
     }
 
-    res.json(printJob);
+    res.json(normalizePrintJob(printJob, req));
   } catch (error) {
     console.error("Failed to load print job", error);
     res.status(500).json({ message: "Failed to load print job" });

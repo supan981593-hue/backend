@@ -10,6 +10,7 @@ const { ensureUploadsDir, uploadsDir } = require("./config/paths");
 
 const app = express();
 
+app.set("trust proxy", 1);
 ensureUploadsDir();
 
 const allowedOrigins = (process.env.CORS_ORIGINS || "")
