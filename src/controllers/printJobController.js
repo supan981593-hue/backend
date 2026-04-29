@@ -16,7 +16,9 @@ function normalizePrintJob(printJob, req) {
   const normalizedJob = typeof printJob.toObject === "function" ? printJob.toObject() : printJob;
   const baseUrl = getPublicBaseUrl(req);
 
-  if (normalizedJob.fileUrl) {
+  if (normalizedJob.fileStoragePath) {
+    normalizedJob.fileUrl = `${baseUrl}/${normalizedJob.fileStoragePath.replace(/\\/g, "/")}`;
+  } else if (normalizedJob.fileUrl) {
     try {
       const fileUrl = new URL(normalizedJob.fileUrl);
       normalizedJob.fileUrl = `${baseUrl}${fileUrl.pathname}`;
